@@ -18,7 +18,7 @@ import connectionRoutes from "./routes/connection.route.js";
 import { connectDB } from "./lib/db.js";
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000; // Render provides PORT
 const __dirname = pathModule.resolve();
 
 (async () => {
@@ -61,9 +61,11 @@ const __dirname = pathModule.resolve();
 			});
 		}
 
-		app.listen(PORT, () => {
-			console.log(` Server running on port ${PORT}`);
-		});
+		
+			app.listen(PORT, () => {
+               console.log(`Server running on port ${PORT}`);
+            });
+
 	} catch (error) {
 		console.error(" Error starting server:", error);
 		process.exit(1);
