@@ -1,8 +1,17 @@
-import express from "express";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Fix for __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env before anything else
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
+import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import path from "path";
 
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
@@ -12,11 +21,8 @@ import connectionRoutes from "./routes/connection.route.js";
 
 import { connectDB } from "./lib/db.js";
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
 
 if (process.env.NODE_ENV !== "production") {
 	app.use(
@@ -27,7 +33,7 @@ if (process.env.NODE_ENV !== "production") {
 	);
 }
 
-app.use(express.json({ limit: "5mb" })); // parse JSON request bodies
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
 app.use("/api/v1/auth", authRoutes);
@@ -44,7 +50,10 @@ if (process.env.NODE_ENV === "production") {
 	});
 }
 
-app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
-	connectDB();
-});
+(async () => {
+	await connectDB();
+	app.listen(PORT, () => {
+		console.log(`Server running on port ${PORT}`);
+		console.log("MONGO_URI:", process.env.MONGO_URI); // Debug
+	});
+})();
