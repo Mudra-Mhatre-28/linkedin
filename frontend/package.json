@@ -12,6 +12,8 @@
   "dependencies": {
     "@tanstack/react-query": "^5.55.0",
     "axios": "^1.7.7",
+    "baseline-browser-mapping": "^2.10.0",
+    "caniuse-lite": "^1.0.30001774",
     "date-fns": "^3.6.0",
     "linkedin-clone": "file:..",
     "lucide-react": "^0.439.0",

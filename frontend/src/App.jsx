@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import {Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 
 import HomePage from "./pages/HomePage";
@@ -11,6 +11,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import NetworkPage from "./pages/NetworkPage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
 	const { data: authUser, isLoading } = useQuery({
@@ -40,9 +41,11 @@ function App() {
 				<Route path='/network' element={authUser ? <NetworkPage /> : <Navigate to={"/login"} />} />
 				<Route path='/post/:postId' element={authUser ? <PostPage /> : <Navigate to={"/login"} />} />
 				<Route path='/profile/:username' element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />} />
+				<Route path="/search" element={<SearchPage />} />
 			</Routes>
 			<Toaster />
 		</Layout>
+		
 	);
 }
 

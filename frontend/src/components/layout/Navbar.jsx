@@ -1,9 +1,19 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../../lib/axios";
 import { Link } from "react-router-dom";
 import { Bell, Home, LogOut, User, Users } from "lucide-react";
 
+
+
+
+
 const Navbar = () => {
+	const [search, setSearch] = useState("");
+    const navigate = useNavigate();
 	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 	const queryClient = useQueryClient();
 
@@ -26,6 +36,12 @@ const Navbar = () => {
 		},
 	});
 
+	const handleSearch = (e) => {
+  if (e.key === "Enter" && search.trim() !== "") {
+    navigate(`/search?keyword=${search}`);
+  }
+};
+
 	const unreadNotificationCount = notifications?.data.filter((notif) => !notif.read).length;
 	const unreadConnectionRequestsCount = connectionRequests?.data?.length;
 
@@ -38,6 +54,23 @@ const Navbar = () => {
 							<img className='h-8 rounded' src='/Connect-In.png' alt='LinkedIn' />
 						</Link>
 					</div>
+
+
+{/* search box start */}
+
+<input
+          type="text"
+          placeholder="Search by city, skills, project..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleSearch}
+          className="bg-gray-100 px-4 py-2 rounded-md w-80 outline-none"
+        />
+
+{/* search box end */}
+
+
+
 					<div className='flex items-center gap-2 md:gap-6'>
 						{authUser ? (
 							<>

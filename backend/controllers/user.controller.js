@@ -80,3 +80,50 @@ export const updateProfile = async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+
+    if (!keyword) {
+      return res.status(400).json({ message: "Search keyword is required" });
+    }
+
+    const searchRegex = new RegExp(keyword, "i");
+
+    const users = await User.find({
+      $or: [
+        // First name
+        { firstName: searchRegex },
+
+        // Last name
+        { lastName: searchRegex },
+
+        // Full name (if stored in name field)
+        { name: searchRegex },
+
+        // Username
+        { username: searchRegex },
+
+        // Location
+        { location: searchRegex },
+
+        // Headline
+        { headline: searchRegex },
+
+        // Skills (array search)
+        { skills: { $in: [searchRegex] } },
+
+        // Projects
+        { projects: searchRegex },
+      ],
+    })
+      .select("name firstName lastName username profilePicture headline location skills projects")
+      .limit(20);
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in searchUsers controller:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
