@@ -13,9 +13,7 @@ const PostCreation = ({ user }) => {
 
 	const { mutate: createPostMutation, isPending } = useMutation({
 		mutationFn: async (postData) => {
-			const res = await axiosInstance.post("/posts/create", postData, {
-				headers: { "Content-Type": "application/json" },
-			});
+			const res = await axiosInstance.post("/posts/create", postData);
 			return res.data;
 		},
 		onSuccess: () => {
@@ -24,16 +22,27 @@ const PostCreation = ({ user }) => {
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
 		onError: (err) => {
-			toast.error(err.response.data.message || "Failed to create post");
+			console.log("POST ERROR:", err.response?.data || err.message);
+			toast.error(err.response?.data?.message || "Failed to create post");
 		},
 	});
 
 	const handlePostCreation = async () => {
 		try {
+
+			if (!content.trim() && !image) {
+				toast.error("Post cannot be empty");
+				return;
+			}
+
 			const postData = { content };
-			if (image) postData.image = await readFileAsDataURL(image);
+
+			if (image) {
+				postData.image = await readFileAsDataURL(image);
+			}
 
 			createPostMutation(postData);
+
 		} catch (error) {
 			console.error("Error in handlePostCreation:", error);
 		}
@@ -47,12 +56,14 @@ const PostCreation = ({ user }) => {
 
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
+
+		if (!file) return;
+
 		setImage(file);
-		if (file) {
-			readFileAsDataURL(file).then(setImagePreview);
-		} else {
-			setImagePreview(null);
-		}
+
+		readFileAsDataURL(file).then((dataUrl) => {
+			setImagePreview(dataUrl);
+		});
 	};
 
 	const readFileAsDataURL = (file) => {
@@ -67,7 +78,12 @@ const PostCreation = ({ user }) => {
 	return (
 		<div className='bg-secondary rounded-lg shadow mb-4 p-4'>
 			<div className='flex space-x-3'>
-				<img src={user.profilePicture || "/avatar.png"} alt={user.name} className='size-12 rounded-full' />
+				<img
+					src={user.profilePicture || "/avatar.png"}
+					alt={user.name}
+					className='size-12 rounded-full'
+				/>
+
 				<textarea
 					placeholder="What's on your mind?"
 					className='w-full p-3 rounded-lg bg-base-100 hover:bg-base-200 focus:bg-base-200 focus:outline-none resize-none transition-colors duration-200 min-h-[100px]'
@@ -78,7 +94,11 @@ const PostCreation = ({ user }) => {
 
 			{imagePreview && (
 				<div className='mt-4'>
-					<img src={imagePreview} alt='Selected' className='w-full h-auto rounded-lg' />
+					<img
+						src={imagePreview}
+						alt='Selected'
+						className='w-full h-auto rounded-lg'
+					/>
 				</div>
 			)}
 
@@ -87,7 +107,12 @@ const PostCreation = ({ user }) => {
 					<label className='flex items-center text-info hover:text-info-dark transition-colors duration-200 cursor-pointer'>
 						<Image size={20} className='mr-2' />
 						<span>Photo</span>
-						<input type='file' accept='image/*' className='hidden' onChange={handleImageChange} />
+						<input
+							type='file'
+							accept='image/*'
+							className='hidden'
+							onChange={handleImageChange}
+						/>
 					</label>
 				</div>
 
@@ -96,10 +121,15 @@ const PostCreation = ({ user }) => {
 					onClick={handlePostCreation}
 					disabled={isPending}
 				>
-					{isPending ? <Loader className='size-5 animate-spin' /> : "Share"}
+					{isPending ? (
+						<Loader className='size-5 animate-spin' />
+					) : (
+						"Share"
+					)}
 				</button>
 			</div>
 		</div>
 	);
 };
+
 export default PostCreation;
